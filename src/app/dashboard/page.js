@@ -1,5 +1,5 @@
 import React from 'react'
-import Todo from '../components/todo'
+import Todo from '../../components/todo'
 function Dashboard() {
   return (
     <div className='bg-zinc-500 h-[100vh] p-[5%]'>
