@@ -22,6 +22,13 @@ function Todo() {
   const addFunc = async (e) => {
     e.preventDefault();
 
+    setTodos((item) => {
+      return [
+        ...item,
+        { todo: todoRef.current.value, id: Math.random(), isComplete: false },
+      ];
+    });
+
     const response = await axios.post(
       "/api/post",
       {
@@ -31,28 +38,27 @@ function Todo() {
       },
       { headers: { "Content-Type": "application/json" } }
     );
-
     console.log(response.data);
 
-    setTodos((item) => {
-      return [
-        ...item,
-        { todo: todoRef.current.value, id: Math.random(), isComplete: false },
-      ];
-    });
+   
   };
-  const deleteFunc = (id) => {
+  const deleteFromApi = async(loId,ApiId) => {
+    deleteFromUi(loId)
+    const res = await axios.delete(`/api/${ApiId}`)
+    console.log(res.data)
+  };
+  const deleteFromUi = (id)=>{
     const changed = todos.filter((item) => {
       return item.id !== id;
     });
     setTodos(changed);
-  };
+  }
   const comTaskFunc = async (id,locId) => {
     const res = await axios.put(
       `/api/${id}`,
       { isComplete: true }
     );
-    deleteFunc(locId)
+    deleteFromUi(locId)
     console.log(res.data);
   };
 
@@ -104,7 +110,7 @@ function Todo() {
                   <button
                     className="px-2 border-2 hover:bg-slate-400 rounded-md"
                     onClick={() => {
-                      deleteFunc(item.id);
+                      deleteFromApi(item.id,item._id);
                     }}
                   >
                     delete

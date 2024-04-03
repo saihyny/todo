@@ -19,7 +19,18 @@ function Completed() {
     getData();
     console.log("renderd");
   }, []);
-
+  
+  const deleteFromApi = async(loId,ApiId) => {
+    deleteFromUi(loId)
+    const res = await axios.delete(`/api/${ApiId}`)
+    console.log(res.data)
+  };
+  const deleteFromUi = (id)=>{
+    const changed = todos.filter((item) => {
+      return item.id !== id;
+    });
+    setTodos(changed);
+  }
   return (
     <>
       <Navbar />
@@ -38,7 +49,7 @@ function Completed() {
                         <li className="pl-2 font-medium ">{item.todo}</li>
                       </div>
                       <div className=" flex justify-around px-2 items-center">
-                        <button className="px-2 border-2 hover:bg-slate-400 rounded-md ">
+                        <button className="px-2 border-2 hover:bg-slate-400 rounded-md " onClick={()=>{deleteFromApi(item.id,item._id)}}>
                           delete
                         </button>
                       </div>
