@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient} from "mongodb";
 import { NextResponse } from "next/server";
 
 export async function GET(res, req) {
