@@ -1,33 +1,32 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
+import useSWR from "swr";
 import axios from "axios";
+
+const fetcher = async (url) => {
+  const res = await axios.get(url);
+  const result = await res.data;
+  return result;
+};
 function Todo() {
-  const [todos, setTodos] = useState([]);
+  let { data } = useSWR("/api/get", fetcher);
   const todoRef = useRef();
 
-  const getData = async () => {
-    const res = await axios.get("/api/get");
-    const result = await res.data;
-    const Completed = result.filter((item)=>{
-      return !item.isComplete
-    })
-    setTodos(Completed);
-  };
+  if (!data) return <div>please wait..</div>;
 
-  useEffect(() => {
-    getData();
-    console.log("hi");
-  }, []);
+  const Completed = data.filter((item) => {
+    return !item.isComplete;
+  });
+  data = Completed;
 
   const addFunc = async (e) => {
     e.preventDefault();
-
-    setTodos((item) => {
-      return [
-        ...item,
-        { todo: todoRef.current.value, id: Math.random(), isComplete: false },
-      ];
-    });
+    const newTodo = {
+      todo: todoRef.current.value,
+      id: Math.random(),
+      isComplete: false,
+    }
+    data.push(newTodo);
 
     const response = await axios.post(
       "/api/post",
@@ -39,32 +38,27 @@ function Todo() {
       { headers: { "Content-Type": "application/json" } }
     );
     console.log(response.data);
-
-   
   };
-  const deleteFromApi = async(loId,ApiId) => {
-    deleteFromUi(loId)
-    const res = await axios.delete(`/api/${ApiId}`)
-    console.log(res.data)
+  const deleteFromApi = async (loId, ApiId) => {
+    deleteFromUi(loId);
+    const res = await axios.delete(`/api/${ApiId}`);
+    console.log(res.data);
   };
-  const deleteFromUi = (id)=>{
-    const changed = todos.filter((item) => {
+  const deleteFromUi = (id) => {
+    const changed = data.filter((item) => {
       return item.id !== id;
     });
-    setTodos(changed);
-  }
-  const comTaskFunc = async (id,locId) => {
-    const res = await axios.put(
-      `/api/${id}`,
-      { isComplete: true }
-    );
-    deleteFromUi(locId)
+    data = changed;
+  };
+  const comTaskFunc = async (id, locId) => {
+    const res = await axios.put(`/api/${id}`, { isComplete: true });
+    deleteFromUi(locId);
     console.log(res.data);
   };
 
   return (
     <>
-      {todos.length <= 0 ? (
+      {data.length <= 0 ? (
         <>
           <h2>please wait UnCompleted tasks are loading</h2>
           <div className="bg-slate-300 border-y-2 rounded-lg">
@@ -90,7 +84,7 @@ function Todo() {
         </>
       ) : (
         <div className="">
-          {todos.map((item) => (
+          {data.map((item) => (
             <ul key={item.id} className="bg-slate-300 border-y-2 rounded-lg">
               <div className="flex justify-around">
                 <div className="flex flex-1 items-center p-2">
@@ -110,7 +104,7 @@ function Todo() {
                   <button
                     className="px-2 border-2 hover:bg-slate-400 rounded-md"
                     onClick={() => {
-                      deleteFromApi(item.id,item._id);
+                      deleteFromApi(item.id, item._id);
                     }}
                   >
                     delete
