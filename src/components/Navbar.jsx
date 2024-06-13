@@ -1,18 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 function Navbar() {
-  const [activeLink, handleLinkClick] = useState("/");
+  const pathname = usePathname();
+
+  const isActive = (href) => {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   return (
-    <div className="flex bg-zinc-400 h-[50px] justify-around">
+    <div className="flex  h-[50px] justify-around sticky top-0 z-10 backdrop-filter backdrop-blur-lg bg-opacity-30  border-b border-gray-200  firefox:bg-opacity-90">
       <div className="flex">
         <Link
           href="/"
-          
           className={`p-2 font-serif font-bold text-2xl ${
-            activeLink === "/" ? "active" : ""
+            isActive("/") ? "font-bold bg-gray-300 rounded-lg" : ""
           }`}
-          onClick={() => handleLinkClick("/")}
         >
           TODOS
         </Link>
@@ -20,24 +25,20 @@ function Navbar() {
       <div className="p-3">
         <Link
           href="/completed"
-          
           className={`p-2 font-serif font-semibold ${
-            activeLink === "/completed" ? "active" : ""
+            isActive("/completed") ? "font-bold bg-gray-300 rounded-sm" : ""
           }`}
-          onClick={() => handleLinkClick("/completed")}
         >
           Completed
         </Link>
         <Link
           href="/deleted"
           className={`p-2 font-serif font-semibold ${
-            activeLink === "/deleted" ? "active" : ""
+            isActive("/deleted") ? "font-bold bg-gray-300" : ""
           }`}
-          onClick={() => handleLinkClick("/deleted")}
         >
-          deleted
+          Deleted
         </Link>
-       
       </div>
     </div>
   );
